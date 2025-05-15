@@ -5,9 +5,8 @@ export const manifest = {
     {
       name: "bundle-1",
       assets: {
-        spritesheet: "/sprite/spritesheet.json",
-        background: "images/background.png",
-        hills: "images/hills.png",
+        spritesheet: "spritesheets/spritesheet.json",
+        background: "images/map.png",
       },
     },
   ],
@@ -23,12 +22,10 @@ export class AssetsLoader {
   public getAssets(): {
     spritesheet: Spritesheet;
     backgroundTexture: Texture;
-    hillsTexture: Texture;
   } {
     return {
       spritesheet: Assets.get("spritesheet"),
       backgroundTexture: Assets.get("background"),
-      hillsTexture: Assets.get("hills"),
     };
   }
 }
