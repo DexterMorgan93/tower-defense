@@ -69,6 +69,7 @@ export class Game extends Container {
           this.activeHoveringTile.position.x,
           this.activeHoveringTile.position.y
         );
+        newBuilding.renderProjectiles();
         this.buildingsContainer.addChild(newBuilding);
         this.activeHoveringTile.occupied = true;
       }

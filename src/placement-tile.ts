@@ -16,7 +16,7 @@ export class PlacementTile extends Container {
     this.view = new Graphics();
     this.view
       .rect(0, 0, this.buildingWidth, this.buildingHeight)
-      .fill({ color: this.color });
+      .fill({ color: this.color }).alpha = 0.3;
 
     this.addChild(this.view);
   }
