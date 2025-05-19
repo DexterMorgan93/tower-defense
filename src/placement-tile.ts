@@ -3,6 +3,9 @@ import { Container, Graphics } from "pixi.js";
 export class PlacementTile extends Container {
   color = "0x964b00";
   view!: Graphics;
+  buildingWidth = 64;
+  buildingHeight = 64;
+  occupied = false;
 
   constructor() {
     super();
@@ -11,14 +14,18 @@ export class PlacementTile extends Container {
 
   setup() {
     this.view = new Graphics();
-    this.view.rect(0, 0, 64, 64).fill({ color: this.color });
+    this.view
+      .rect(0, 0, this.buildingWidth, this.buildingHeight)
+      .fill({ color: this.color });
 
     this.addChild(this.view);
   }
 
   drawTile() {
     this.view.clear();
-    this.view.rect(0, 0, 64, 64).fill({ color: this.color });
+    this.view
+      .rect(0, 0, this.buildingWidth, this.buildingHeight)
+      .fill({ color: this.color });
   }
 
   handleUpdate(pos: { x: number; y: number }) {

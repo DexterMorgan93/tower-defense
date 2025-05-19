@@ -4,6 +4,7 @@ import { Enemy } from "./enemy";
 import { waypoints } from "./shared/waypoints";
 import { placementTilesdata2D } from "./shared/placement-tiles-data";
 import { PlacementTile } from "./placement-tile";
+import { Building } from "./building";
 
 const mouse = {
   x: 0,
@@ -16,12 +17,15 @@ export class Game extends Container {
   background: Sprite;
   enemiesContainer: Container;
   placementTilesContainer: Container;
+  buildingsContainer: Container;
+  activeHoveringTile!: PlacementTile | null;
 
   constructor(app: Application) {
     super();
 
     this.eventMode = "dynamic";
     this.handleHover();
+    this.handlePointerDown();
 
     this.app = app;
     this.assetsLoader = new AssetsLoader();
@@ -53,13 +57,43 @@ export class Game extends Container {
       });
     });
 
-    console.log(this.placementTilesContainer.children);
+    this.buildingsContainer = new Container();
+    this.addChild(this.buildingsContainer);
+  }
+
+  handlePointerDown() {
+    this.addEventListener("pointerdown", (e) => {
+      if (this.activeHoveringTile && !this.activeHoveringTile.occupied) {
+        const newBuilding = new Building();
+        newBuilding.position.set(
+          this.activeHoveringTile.position.x,
+          this.activeHoveringTile.position.y
+        );
+        this.buildingsContainer.addChild(newBuilding);
+        this.activeHoveringTile.occupied = true;
+      }
+    });
   }
 
   handleHover() {
     this.addEventListener("mousemove", (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
+
+      this.activeHoveringTile = null;
+      for (let i = 0; i < this.placementTilesContainer.children.length; i++) {
+        const tile = this.placementTilesContainer.children[i] as PlacementTile;
+
+        if (
+          mouse.x > tile.position.x &&
+          mouse.x < tile.position.x + tile.width &&
+          mouse.y > tile.position.y &&
+          mouse.y < tile.position.y + tile.height
+        ) {
+          this.activeHoveringTile = tile;
+          break;
+        }
+      }
     });
   }
 
