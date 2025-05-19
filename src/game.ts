@@ -5,6 +5,11 @@ import { waypoints } from "./shared/waypoints";
 import { placementTilesdata2D } from "./shared/placement-tiles-data";
 import { PlacementTile } from "./placement-tile";
 
+const mouse = {
+  x: 0,
+  y: 0,
+};
+
 export class Game extends Container {
   app: Application;
   assetsLoader!: AssetsLoader;
@@ -14,6 +19,9 @@ export class Game extends Container {
 
   constructor(app: Application) {
     super();
+
+    this.eventMode = "dynamic";
+    this.handleHover();
 
     this.app = app;
     this.assetsLoader = new AssetsLoader();
@@ -48,6 +56,13 @@ export class Game extends Container {
     console.log(this.placementTilesContainer.children);
   }
 
+  handleHover() {
+    this.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+  }
+
   handleUpdate() {
     this.enemiesContainer.children.forEach((enemyItem) => {
       const enemy = enemyItem as Enemy;
@@ -56,7 +71,7 @@ export class Game extends Container {
 
     this.placementTilesContainer.children.forEach((tile) => {
       const newTile = tile as PlacementTile;
-      newTile.setup();
+      newTile.handleUpdate(mouse);
     });
   }
 }
