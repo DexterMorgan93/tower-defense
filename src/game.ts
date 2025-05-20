@@ -114,9 +114,21 @@ export class Game extends Container {
 
     this.buildingsContainer.children.forEach((item) => {
       const building = item as Building;
+      const enemy = this.enemiesContainer.children[0] as Enemy;
       building.projectilesContainer.children.forEach((subItem) => {
         const projectile = subItem as Projectile;
         projectile.handleUpdate();
+
+        const projectilePosition = projectile.getGlobalPosition();
+        const targetPosition = projectile.target.getGlobalPosition();
+
+        const xDifference = projectilePosition.x - targetPosition.x;
+        const yDifference = projectilePosition.y - targetPosition.y;
+        const distance = Math.hypot(xDifference, yDifference);
+
+        if (distance < enemy.radius + projectile.radius) {
+          projectile.removeFromParent();
+        }
       });
     });
   }

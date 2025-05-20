@@ -5,6 +5,7 @@ export class Projectile extends Container {
   color = "orange";
   view!: Graphics;
   radius = 10;
+  moveSpeed = 5;
   target: Enemy;
 
   constructor(target: Enemy) {
@@ -30,8 +31,8 @@ export class Projectile extends Container {
       targetPosition.x - projectilePosition.x
     );
 
-    const velocityX = Math.cos(angle);
-    const velocityY = Math.sin(angle);
+    const velocityX = Math.cos(angle) * this.moveSpeed;
+    const velocityY = Math.sin(angle) * this.moveSpeed;
 
     this.position.x += velocityX;
     this.position.y += velocityY;
