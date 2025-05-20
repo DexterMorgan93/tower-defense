@@ -1,5 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 import { Projectile } from "./projectile";
+import type { Enemy } from "./enemy";
 
 export class Building extends Container {
   color = "blue";
@@ -7,6 +8,7 @@ export class Building extends Container {
   buildingWidth = 64 * 2;
   buildingHeight = 64;
   projectilesContainer!: Container;
+  target!: Enemy;
 
   constructor() {
     super();
@@ -14,6 +16,12 @@ export class Building extends Container {
 
     this.projectilesContainer = new Container();
     this.addChild(this.projectilesContainer);
+  }
+
+  setTarget(target: Enemy): void {
+    this.target = target;
+
+    console.log(target);
   }
 
   setup() {
@@ -24,8 +32,8 @@ export class Building extends Container {
     this.addChild(this.view);
   }
 
-  renderProjectiles() {
-    const projectile = new Projectile();
+  shoot() {
+    const projectile = new Projectile(this.target);
     projectile.position.set(this.width / 2, this.height / 2);
     this.projectilesContainer.addChild(projectile);
   }

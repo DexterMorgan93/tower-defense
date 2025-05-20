@@ -5,6 +5,7 @@ import { waypoints } from "./shared/waypoints";
 import { placementTilesdata2D } from "./shared/placement-tiles-data";
 import { PlacementTile } from "./placement-tile";
 import { Building } from "./building";
+import type { Projectile } from "./projectile";
 
 const mouse = {
   x: 0,
@@ -69,7 +70,9 @@ export class Game extends Container {
           this.activeHoveringTile.position.x,
           this.activeHoveringTile.position.y
         );
-        newBuilding.renderProjectiles();
+
+        newBuilding.setTarget(this.enemiesContainer.children[0] as Enemy);
+        newBuilding.shoot();
         this.buildingsContainer.addChild(newBuilding);
         this.activeHoveringTile.occupied = true;
       }
@@ -107,6 +110,14 @@ export class Game extends Container {
     this.placementTilesContainer.children.forEach((tile) => {
       const newTile = tile as PlacementTile;
       newTile.handleUpdate(mouse);
+    });
+
+    this.buildingsContainer.children.forEach((item) => {
+      const building = item as Building;
+      building.projectilesContainer.children.forEach((subItem) => {
+        const projectile = subItem as Projectile;
+        projectile.handleUpdate();
+      });
     });
   }
 }

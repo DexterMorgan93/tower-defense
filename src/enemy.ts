@@ -4,6 +4,9 @@ import { waypoints } from "./shared/waypoints";
 export class Enemy extends Container {
   center!: { x: number; y: number };
   waypointIndex: number = 0;
+  enemyWidth = 100;
+  enemyHeight = 100;
+  radius = 50;
 
   constructor() {
     super();
@@ -12,11 +15,13 @@ export class Enemy extends Container {
 
   setup() {
     const view = new Graphics();
-    view.rect(0, 0, 100, 100).fill({ color: "red" });
     this.center = {
-      x: this.position.x + this.width / 2,
-      y: this.position.y + this.height / 2,
+      x: this.position.x + this.enemyWidth / 2,
+      y: this.position.y + this.enemyHeight / 2,
     };
+    view
+      .arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2)
+      .fill({ color: "red" });
     this.addChild(view);
   }
 
@@ -29,8 +34,8 @@ export class Enemy extends Container {
     this.position.x += Math.cos(angle);
     this.position.y += Math.sin(angle);
     this.center = {
-      x: this.position.x + this.width / 2,
-      y: this.position.y + this.height / 2,
+      x: this.position.x + this.enemyWidth / 2,
+      y: this.position.y + this.enemyHeight / 2,
     };
 
     if (
