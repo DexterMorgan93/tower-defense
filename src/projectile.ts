@@ -23,9 +23,11 @@ export class Projectile extends Container {
   }
 
   handleUpdate() {
+    const targetPosition = this.target.getGlobalPosition();
+    const projectilePosition = this.getGlobalPosition();
     const angle = Math.atan2(
-      this.target.position.y - this.position.y,
-      this.target.position.x - this.position.x
+      targetPosition.y - projectilePosition.y,
+      targetPosition.x - projectilePosition.x
     );
 
     const velocityX = Math.cos(angle);
