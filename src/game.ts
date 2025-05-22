@@ -103,6 +103,10 @@ export class Game extends Container {
     this.enemiesContainer.children.forEach((enemyItem) => {
       const enemy = enemyItem as Enemy;
       enemy.handleUpdate();
+
+      if (enemy.position.x > 1280) {
+        enemy.removeFromParent();
+      }
     });
 
     for (let i = 0; i < this.placementTilesContainer.children.length - 1; i++) {
