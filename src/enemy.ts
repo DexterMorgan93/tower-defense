@@ -1,5 +1,6 @@
 import { Container, Graphics } from "pixi.js";
 import { waypoints } from "./shared/waypoints";
+import { HealthBar } from "./health-bar";
 
 export class Enemy extends Container {
   center!: { x: number; y: number };
@@ -7,6 +8,9 @@ export class Enemy extends Container {
   enemyWidth = 100;
   enemyHeight = 100;
   radius = 50;
+
+  health = 100;
+  healthBar!: HealthBar;
 
   constructor() {
     super();
@@ -23,6 +27,10 @@ export class Enemy extends Container {
       .arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2)
       .fill({ color: "red" });
     this.addChild(view);
+
+    this.healthBar = new HealthBar();
+    this.healthBar.position.set(0, -15);
+    this.addChild(this.healthBar);
   }
 
   handleUpdate() {
@@ -45,5 +53,17 @@ export class Enemy extends Container {
     ) {
       this.waypointIndex++;
     }
+  }
+
+  subtractHealth(damage: number) {
+    this.health -= damage;
+    if (this.health <= 0) {
+      this.health = 0;
+    }
+    this.healthBar.setHealth(this.health / 100);
+  }
+
+  isDead(): boolean {
+    return this.health <= 0;
   }
 }

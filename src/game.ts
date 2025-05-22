@@ -143,7 +143,11 @@ export class Game extends Container {
           const distance = Math.hypot(xDifference, yDifference);
 
           if (distance < enemy.radius + projectile.radius) {
+            projectile.target.subtractHealth(20);
             projectile.removeFromParent();
+            if (projectile.target.isDead()) {
+              projectile.target.removeFromParent();
+            }
           }
         }
       });
