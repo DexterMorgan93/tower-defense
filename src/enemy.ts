@@ -7,7 +7,7 @@ export class Enemy extends Container {
   waypointIndex: number = 0;
   enemyWidth = 100;
   enemyHeight = 100;
-  radius = 50;
+  static radius = 50;
 
   health = 100;
   healthBar!: HealthBar;
@@ -24,7 +24,7 @@ export class Enemy extends Container {
       y: this.position.y + this.enemyHeight / 2,
     };
     view
-      .arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2)
+      .arc(this.center.x, this.center.y, Enemy.radius, 0, Math.PI * 2)
       .fill({ color: "red" });
     this.addChild(view);
 

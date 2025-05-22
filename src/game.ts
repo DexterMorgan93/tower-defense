@@ -20,6 +20,7 @@ export class Game extends Container {
   placementTilesContainer: Container;
   buildingsContainer: Container;
   activeHoveringTile!: PlacementTile | null;
+  spawnEnemiesCount = 1;
 
   constructor(app: Application) {
     super();
@@ -38,12 +39,6 @@ export class Game extends Container {
 
     this.enemiesContainer = new Container();
     this.addChild(this.enemiesContainer);
-    for (let i = 1; i < 10; i++) {
-      const xOffset = i * 150;
-      const enemy = new Enemy();
-      enemy.position.set(waypoints[0].x - xOffset, waypoints[0].y);
-      this.enemiesContainer.addChild(enemy);
-    }
 
     this.placementTilesContainer = new Container();
     this.addChild(this.placementTilesContainer);
@@ -99,6 +94,15 @@ export class Game extends Container {
     });
   }
 
+  spawnEnemies() {
+    for (let i = 1; i < this.spawnEnemiesCount; i++) {
+      const xOffset = i * 150;
+      const enemy = new Enemy();
+      enemy.position.set(waypoints[0].x - xOffset, waypoints[0].y);
+      this.enemiesContainer.addChild(enemy);
+    }
+  }
+
   handleUpdate() {
     this.enemiesContainer.children.forEach((enemyItem) => {
       const enemy = enemyItem as Enemy;
@@ -124,12 +128,11 @@ export class Game extends Container {
         const xDifference = enemyPosition.x - building.position.x;
         const yDifference = enemyPosition.y - building.position.y;
         const distance = Math.hypot(xDifference, yDifference);
-        return distance < enemy.radius + building.attackRadius;
+        return distance < Enemy.radius + building.attackRadius;
       });
       building.handleUpdate();
       building.setTarget(validEnemies[0] as Enemy);
 
-      const enemy = this.enemiesContainer.children[0] as Enemy;
       building.projectilesContainer.children.forEach((subItem) => {
         const projectile = subItem as Projectile;
         projectile.handleUpdate();
@@ -146,7 +149,7 @@ export class Game extends Container {
           const yDifference = projectilePosition.y - targetPosition.y;
           const distance = Math.hypot(xDifference, yDifference);
 
-          if (distance < enemy.radius + projectile.radius) {
+          if (distance < Enemy.radius + projectile.radius) {
             projectile.target.subtractHealth(20);
             projectile.removeFromParent();
             if (projectile.target.isDead()) {
@@ -156,5 +159,11 @@ export class Game extends Container {
         }
       });
     });
+
+    // tracking total amount of enemies
+    if (this.enemiesContainer.children.length === 0) {
+      this.spawnEnemiesCount += 1;
+      this.spawnEnemies();
+    }
   }
 }
