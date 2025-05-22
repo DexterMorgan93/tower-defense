@@ -6,9 +6,9 @@ export class Projectile extends Container {
   view!: Graphics;
   radius = 10;
   moveSpeed = 5;
-  target: Enemy;
+  target: Enemy | null;
 
-  constructor(target: Enemy) {
+  constructor(target: Enemy | null) {
     super();
     this.setup();
 
@@ -24,17 +24,19 @@ export class Projectile extends Container {
   }
 
   handleUpdate() {
-    const targetPosition = this.target.getGlobalPosition();
-    const projectilePosition = this.getGlobalPosition();
-    const angle = Math.atan2(
-      targetPosition.y - projectilePosition.y,
-      targetPosition.x - projectilePosition.x
-    );
+    if (this.target) {
+      const targetPosition = this.target.getGlobalPosition();
+      const projectilePosition = this.getGlobalPosition();
+      const angle = Math.atan2(
+        targetPosition.y - projectilePosition.y,
+        targetPosition.x - projectilePosition.x
+      );
 
-    const velocityX = Math.cos(angle) * this.moveSpeed;
-    const velocityY = Math.sin(angle) * this.moveSpeed;
+      const velocityX = Math.cos(angle) * this.moveSpeed;
+      const velocityY = Math.sin(angle) * this.moveSpeed;
 
-    this.position.x += velocityX;
-    this.position.y += velocityY;
+      this.position.x += velocityX;
+      this.position.y += velocityY;
+    }
   }
 }

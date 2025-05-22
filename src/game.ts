@@ -1,5 +1,5 @@
 import { Application, Container, Sprite } from "pixi.js";
-import { AssetsLoader } from "./assets-loader";
+import { AssetsLoader } from "./shared/assets-loader";
 import { Enemy } from "./enemy";
 import { waypoints } from "./shared/waypoints";
 import { placementTilesdata2D } from "./shared/placement-tiles-data";
@@ -71,8 +71,6 @@ export class Game extends Container {
           this.activeHoveringTile.position.y
         );
 
-        newBuilding.setTarget(this.enemiesContainer.children[0] as Enemy);
-        newBuilding.shoot();
         this.buildingsContainer.addChild(newBuilding);
         this.activeHoveringTile.occupied = true;
       }
@@ -107,27 +105,46 @@ export class Game extends Container {
       enemy.handleUpdate();
     });
 
-    this.placementTilesContainer.children.forEach((tile) => {
-      const newTile = tile as PlacementTile;
+    for (let i = 0; i < this.placementTilesContainer.children.length - 1; i++) {
+      const newTile = this.placementTilesContainer.children[i] as PlacementTile;
       newTile.handleUpdate(mouse);
-    });
+    }
 
     this.buildingsContainer.children.forEach((item) => {
       const building = item as Building;
+
+      const validEnemies = this.enemiesContainer.children.filter((item) => {
+        const enemy = item as Enemy;
+        const enemyPosition = this.toLocal(enemy.getGlobalPosition());
+
+        const xDifference = enemyPosition.x - building.position.x;
+        const yDifference = enemyPosition.y - building.position.y;
+        const distance = Math.hypot(xDifference, yDifference);
+        return distance < enemy.radius + building.attackRadius;
+      });
+      building.handleUpdate();
+      building.setTarget(validEnemies[0] as Enemy);
+
       const enemy = this.enemiesContainer.children[0] as Enemy;
       building.projectilesContainer.children.forEach((subItem) => {
         const projectile = subItem as Projectile;
         projectile.handleUpdate();
 
-        const projectilePosition = projectile.getGlobalPosition();
-        const targetPosition = projectile.target.getGlobalPosition();
+        if (projectile.target) {
+          const projectilePosition = this.toLocal(
+            projectile.getGlobalPosition()
+          );
+          const targetPosition = this.toLocal(
+            projectile.target.getGlobalPosition()
+          );
 
-        const xDifference = projectilePosition.x - targetPosition.x;
-        const yDifference = projectilePosition.y - targetPosition.y;
-        const distance = Math.hypot(xDifference, yDifference);
+          const xDifference = projectilePosition.x - targetPosition.x;
+          const yDifference = projectilePosition.y - targetPosition.y;
+          const distance = Math.hypot(xDifference, yDifference);
 
-        if (distance < enemy.radius + projectile.radius) {
-          projectile.removeFromParent();
+          if (distance < enemy.radius + projectile.radius) {
+            projectile.removeFromParent();
+          }
         }
       });
     });

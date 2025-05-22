@@ -1,6 +1,6 @@
 import * as Pixi from "pixi.js";
 import { initDevtools } from "@pixi/devtools";
-import { AssetsLoader } from "./assets-loader";
+import { AssetsLoader } from "./shared/assets-loader";
 import { Game } from "./game";
 
 const app = new Pixi.Application();
