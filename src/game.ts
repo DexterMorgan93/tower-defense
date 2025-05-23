@@ -72,14 +72,18 @@ export class Game extends Container {
   handlePointerDown() {
     this.addEventListener("pointerdown", (e) => {
       if (this.activeHoveringTile && !this.activeHoveringTile.occupied) {
-        const newBuilding = new Building();
-        newBuilding.position.set(
-          this.activeHoveringTile.position.x,
-          this.activeHoveringTile.position.y
-        );
+        if (this.statusBar.coins >= Building.cost) {
+          const newBuilding = new Building();
+          this.statusBar.subtractCoins(Building.cost);
 
-        this.buildingsContainer.addChild(newBuilding);
-        this.activeHoveringTile.occupied = true;
+          newBuilding.position.set(
+            this.activeHoveringTile.position.x,
+            this.activeHoveringTile.position.y
+          );
+
+          this.buildingsContainer.addChild(newBuilding);
+          this.activeHoveringTile.occupied = true;
+        }
       }
     });
   }
@@ -167,11 +171,15 @@ export class Game extends Container {
           const yDifference = projectilePosition.y - targetPosition.y;
           const distance = Math.hypot(xDifference, yDifference);
 
-          if (distance < Enemy.radius + projectile.radius) {
+          if (
+            distance < Enemy.radius + projectile.radius &&
+            !projectile.target.isDead()
+          ) {
             projectile.target.subtractHealth(20);
             projectile.removeFromParent();
             if (projectile.target.isDead()) {
               projectile.target.removeFromParent();
+              this.statusBar.addCoins(Building.winCoins);
             }
           }
         }

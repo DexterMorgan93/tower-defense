@@ -12,6 +12,8 @@ export class Building extends Container {
   projectilesContainer!: Container;
   attackRadius = 250;
   target?: Enemy | null;
+  static cost = 50;
+  static winCoins = 25;
 
   constructor() {
     super();
