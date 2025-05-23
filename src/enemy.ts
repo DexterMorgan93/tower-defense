@@ -12,7 +12,7 @@ export class Enemy extends Container {
     vx: 0,
     vy: 0,
   };
-  moveSpeed = 10;
+  moveSpeed = 3;
 
   health = 100;
   healthBar!: HealthBar;

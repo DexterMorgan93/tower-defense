@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Texture, TextureSource } from "pixi.js";
 import { Projectile } from "./projectile";
 import type { Enemy } from "./enemy";
 
@@ -12,10 +12,11 @@ export class Building extends Container {
   projectilesContainer!: Container;
   attackRadius = 250;
   target?: Enemy | null;
+  textures!: Record<string | number, Texture<TextureSource<any>>>;
   static cost = 50;
   static winCoins = 25;
 
-  constructor() {
+  constructor(texture: Record<string | number, Texture<TextureSource<any>>>) {
     super();
     this.center = {
       x: this.position.x + this.buildingWidth / 2,
@@ -25,6 +26,8 @@ export class Building extends Container {
 
     this.projectilesContainer = new Container();
     this.addChild(this.projectilesContainer);
+
+    this.textures = texture;
   }
 
   setTarget(target?: Enemy): void {
@@ -53,7 +56,10 @@ export class Building extends Container {
   }
 
   shoot() {
-    const projectile = new Projectile(this.target || null);
+    const projectile = new Projectile(
+      this.target || null,
+      this.textures["projectile.png"]
+    );
     projectile.position.set(this.buildingWidth / 2, this.buildingHeight / 2);
     this.projectilesContainer.addChild(projectile);
   }

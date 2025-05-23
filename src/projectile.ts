@@ -1,4 +1,4 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite, Texture } from "pixi.js";
 import type { Enemy } from "./enemy";
 
 export class Projectile extends Container {
@@ -7,20 +7,23 @@ export class Projectile extends Container {
   radius = 10;
   moveSpeed = 5;
   target: Enemy | null;
+  texture!: Texture;
 
-  constructor(target: Enemy | null) {
+  constructor(target: Enemy | null, texture: Texture) {
     super();
-    this.setup();
 
     this.target = target;
+    this.texture = texture;
+    this.setup();
+
+    console.log(this.texture);
   }
 
   setup() {
-    this.view = new Graphics();
-    this.view
-      .arc(0, 0, this.radius, 0, Math.PI * 2)
-      .fill({ color: this.color });
-    this.addChild(this.view);
+    const view = new Sprite(this.texture);
+    view.position.set(0, 0);
+
+    this.addChild(view);
   }
 
   handleUpdate() {

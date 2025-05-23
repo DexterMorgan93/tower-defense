@@ -1,4 +1,11 @@
-import { Application, Container, Sprite, Ticker } from "pixi.js";
+import {
+  Application,
+  Container,
+  Sprite,
+  Texture,
+  TextureSource,
+  Ticker,
+} from "pixi.js";
 import { AssetsLoader } from "./shared/assets-loader";
 import { Enemy } from "./enemy";
 import { waypoints } from "./shared/waypoints";
@@ -24,6 +31,7 @@ export class Game extends Container {
   spawnEnemiesCount = 1;
   statusBar!: Statusbar;
   gameEnded = false;
+  textures!: Record<string | number, Texture<TextureSource<any>>>;
 
   constructor(app: Application) {
     super();
@@ -39,6 +47,7 @@ export class Game extends Container {
       backgroundTexture,
       spritesheet: { textures },
     } = this.assetsLoader.getAssets();
+    this.textures = textures;
 
     this.background = new Sprite(backgroundTexture);
     this.addChild(this.background);
@@ -73,7 +82,7 @@ export class Game extends Container {
     this.addEventListener("pointerdown", (e) => {
       if (this.activeHoveringTile && !this.activeHoveringTile.occupied) {
         if (this.statusBar.coins >= Building.cost) {
-          const newBuilding = new Building();
+          const newBuilding = new Building(this.textures);
           this.statusBar.subtractCoins(Building.cost);
 
           newBuilding.position.set(
