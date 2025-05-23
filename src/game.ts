@@ -1,4 +1,4 @@
-import { Application, Container, Sprite } from "pixi.js";
+import { Application, Container, Sprite, Ticker } from "pixi.js";
 import { AssetsLoader } from "./shared/assets-loader";
 import { Enemy } from "./enemy";
 import { waypoints } from "./shared/waypoints";
@@ -6,6 +6,7 @@ import { placementTilesdata2D } from "./shared/placement-tiles-data";
 import { PlacementTile } from "./placement-tile";
 import { Building } from "./building";
 import type { Projectile } from "./projectile";
+import { Statusbar } from "./status-bar";
 
 const mouse = {
   x: 0,
@@ -21,6 +22,8 @@ export class Game extends Container {
   buildingsContainer: Container;
   activeHoveringTile!: PlacementTile | null;
   spawnEnemiesCount = 1;
+  statusBar!: Statusbar;
+  gameEnded = false;
 
   constructor(app: Application) {
     super();
@@ -32,10 +35,19 @@ export class Game extends Container {
     this.app = app;
     this.assetsLoader = new AssetsLoader();
 
-    const { backgroundTexture } = this.assetsLoader.getAssets();
+    const {
+      backgroundTexture,
+      spritesheet: { textures },
+    } = this.assetsLoader.getAssets();
 
     this.background = new Sprite(backgroundTexture);
     this.addChild(this.background);
+
+    this.statusBar = new Statusbar(
+      textures["heart.png"],
+      textures["coins.png"]
+    );
+    this.addChild(this.statusBar);
 
     this.enemiesContainer = new Container();
     this.addChild(this.enemiesContainer);
@@ -103,13 +115,19 @@ export class Game extends Container {
     }
   }
 
-  handleUpdate() {
+  handleUpdate(delta: Ticker) {
+    if (this.statusBar.hearts === 0) {
+      this.endGame();
+      delta.stop();
+    }
+
     this.enemiesContainer.children.forEach((enemyItem) => {
       const enemy = enemyItem as Enemy;
       enemy.handleUpdate();
 
       if (enemy.position.x > 1280) {
         enemy.removeFromParent();
+        this.statusBar.subtractHearts(1);
       }
     });
 
@@ -165,5 +183,17 @@ export class Game extends Container {
       this.spawnEnemiesCount += 1;
       this.spawnEnemies();
     }
+  }
+
+  startGame() {
+    this.gameEnded = false;
+  }
+
+  restartGame() {
+    this.spawnEnemiesCount = 2;
+  }
+
+  endGame() {
+    this.gameEnded = true;
   }
 }

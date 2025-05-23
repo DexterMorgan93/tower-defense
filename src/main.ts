@@ -25,7 +25,7 @@ async function initAssets() {
   const game = new Game(app);
   app.stage.addChild(game);
   app.ticker.add((delta) => {
-    game.handleUpdate();
+    game.handleUpdate(delta);
   });
 })();
 

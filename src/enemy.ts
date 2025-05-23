@@ -8,6 +8,11 @@ export class Enemy extends Container {
   enemyWidth = 100;
   enemyHeight = 100;
   static radius = 50;
+  velocity = {
+    vx: 0,
+    vy: 0,
+  };
+  moveSpeed = 10;
 
   health = 100;
   healthBar!: HealthBar;
@@ -39,16 +44,23 @@ export class Enemy extends Container {
     const xDistance = waypoint.x - this.center.x;
     const angle = Math.atan2(yDistance, xDistance);
 
-    this.position.x += Math.cos(angle);
-    this.position.y += Math.sin(angle);
+    this.velocity.vx = Math.cos(angle) * this.moveSpeed;
+    this.velocity.vy = Math.sin(angle) * this.moveSpeed;
+
+    this.position.x += this.velocity.vx;
+    this.position.y += this.velocity.vy;
+
     this.center = {
       x: this.position.x + this.enemyWidth / 2,
       y: this.position.y + this.enemyHeight / 2,
     };
 
+    const distance = Math.hypot(
+      waypoint.y - this.center.y,
+      waypoint.x - this.center.x
+    );
     if (
-      Math.round(this.center.x) === Math.round(waypoint.x) &&
-      Math.round(this.center.y) === Math.round(waypoint.y) &&
+      distance < this.moveSpeed &&
       this.waypointIndex < waypoints.length - 1
     ) {
       this.waypointIndex++;
