@@ -15,8 +15,6 @@ export class Projectile extends Container {
     this.target = target;
     this.texture = texture;
     this.setup();
-
-    console.log(this.texture);
   }
 
   setup() {

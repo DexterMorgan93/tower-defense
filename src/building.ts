@@ -48,11 +48,11 @@ export class Building extends Container {
       .fill({ color: this.color });
     this.addChild(this.view);
 
-    const arcview = new Graphics();
-    arcview
-      .arc(this.center.x, this.center.y, this.attackRadius, 0, Math.PI * 2)
-      .fill({ color: "rgba(0,0,250,0.2)" });
-    this.addChild(arcview);
+    // const arcview = new Graphics();
+    // arcview
+    //   .arc(this.center.x, this.center.y, this.attackRadius, 0, Math.PI * 2)
+    //   .fill({ color: "rgba(0,0,250,0.2)" });
+    // this.addChild(arcview);
   }
 
   shoot() {

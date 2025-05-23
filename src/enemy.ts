@@ -1,9 +1,8 @@
-import { Container, Graphics } from "pixi.js";
+import { AnimatedSprite, Container, Graphics, Texture } from "pixi.js";
 import { waypoints } from "./shared/waypoints";
 import { HealthBar } from "./health-bar";
 
-export class Enemy extends Container {
-  center!: { x: number; y: number };
+export class Enemy extends AnimatedSprite {
   waypointIndex: number = 0;
   enemyWidth = 100;
   enemyHeight = 100;
@@ -17,31 +16,28 @@ export class Enemy extends Container {
   health = 100;
   healthBar!: HealthBar;
 
-  constructor() {
-    super();
+  texturesOrc: Texture[];
+
+  constructor(textures: Texture[]) {
+    super(textures);
+    this.texturesOrc = textures;
+    this.anchor.set(0.5, 0.5);
     this.setup();
   }
 
   setup() {
-    const view = new Graphics();
-    this.center = {
-      x: this.position.x + this.enemyWidth / 2,
-      y: this.position.y + this.enemyHeight / 2,
-    };
-    view
-      .arc(this.center.x, this.center.y, Enemy.radius, 0, Math.PI * 2)
-      .fill({ color: "red" });
-    this.addChild(view);
+    this.animationSpeed = 0.5;
+    this.play();
 
     this.healthBar = new HealthBar();
-    this.healthBar.position.set(0, -15);
+    this.healthBar.position.set(-this.healthBar.width / 2, -55);
     this.addChild(this.healthBar);
   }
 
   handleUpdate() {
     const waypoint = waypoints[this.waypointIndex];
-    const yDistance = waypoint.y - this.center.y;
-    const xDistance = waypoint.x - this.center.x;
+    const yDistance = waypoint.y - this.y;
+    const xDistance = waypoint.x - this.x;
     const angle = Math.atan2(yDistance, xDistance);
 
     this.velocity.vx = Math.cos(angle) * this.moveSpeed;
@@ -50,15 +46,7 @@ export class Enemy extends Container {
     this.position.x += this.velocity.vx;
     this.position.y += this.velocity.vy;
 
-    this.center = {
-      x: this.position.x + this.enemyWidth / 2,
-      y: this.position.y + this.enemyHeight / 2,
-    };
-
-    const distance = Math.hypot(
-      waypoint.y - this.center.y,
-      waypoint.x - this.center.x
-    );
+    const distance = Math.hypot(waypoint.y - this.y, waypoint.x - this.x);
     if (
       distance < this.moveSpeed &&
       this.waypointIndex < waypoints.length - 1

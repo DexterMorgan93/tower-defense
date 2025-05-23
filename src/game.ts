@@ -32,6 +32,7 @@ export class Game extends Container {
   statusBar!: Statusbar;
   gameEnded = false;
   textures!: Record<string | number, Texture<TextureSource<any>>>;
+  animations!: Record<string | number, Texture<TextureSource<any>>[]>;
 
   constructor(app: Application) {
     super();
@@ -45,9 +46,10 @@ export class Game extends Container {
 
     const {
       backgroundTexture,
-      spritesheet: { textures },
+      spritesheet: { textures, animations },
     } = this.assetsLoader.getAssets();
     this.textures = textures;
+    this.animations = animations;
 
     this.background = new Sprite(backgroundTexture);
     this.addChild(this.background);
@@ -122,7 +124,7 @@ export class Game extends Container {
   spawnEnemies() {
     for (let i = 1; i < this.spawnEnemiesCount; i++) {
       const xOffset = i * 150;
-      const enemy = new Enemy();
+      const enemy = new Enemy(this.animations["orc"]);
       enemy.position.set(waypoints[0].x - xOffset, waypoints[0].y);
       this.enemiesContainer.addChild(enemy);
     }

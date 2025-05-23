@@ -70,7 +70,6 @@ export class Statusbar extends Container {
   }
 
   addCoins(value: number) {
-    console.log(value);
     this.coins += value;
     this.coinsText.text = this.coins;
   }
