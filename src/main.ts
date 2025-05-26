@@ -7,13 +7,6 @@ async function run(): Promise<void> {
   const startModal = new StartModal();
   await startModal.initializeLoader();
 
-  const {
-    backgroundTexture,
-    spritesheet: { textures, animations },
-  } = startModal.getAssets();
-
-  console.log(textures, animations, backgroundTexture);
-
   await SceneManager.changeScene(startModal);
 }
 

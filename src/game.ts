@@ -6,7 +6,6 @@ import {
   TextureSource,
   Ticker,
 } from "pixi.js";
-import { AssetsLoader } from "./shared/assets-loader";
 import { Enemy } from "./enemy";
 import { waypoints } from "./shared/waypoints";
 import { placementTilesdata2D } from "./shared/placement-tiles-data";
@@ -16,6 +15,7 @@ import type { Projectile } from "./projectile";
 import { Statusbar } from "./status-bar";
 import { Explosion } from "./explosion";
 import { DefaultScene } from "./scene-manager";
+import { StartModal } from "./start-modal";
 
 const mouse = {
   x: 0,
@@ -24,7 +24,6 @@ const mouse = {
 
 export class Game extends DefaultScene {
   app: Application;
-  assetsLoader!: AssetsLoader;
   background: Sprite;
   enemiesContainer: Container;
   explosionsContainer: Container;
@@ -44,13 +43,14 @@ export class Game extends DefaultScene {
     this.handleHover();
     this.handlePointerDown();
 
+    const startModal = new StartModal();
+
     this.app = app;
-    this.assetsLoader = new AssetsLoader();
 
     const {
       backgroundTexture,
       spritesheet: { textures, animations },
-    } = this.assetsLoader.getAssets();
+    } = startModal.getAssets();
     this.textures = textures;
     this.animations = animations;
 
