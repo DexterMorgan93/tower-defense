@@ -1,4 +1,4 @@
-import { Container, Sprite, Texture, Text } from "pixi.js";
+import { Container, Sprite, Texture, Text, Graphics } from "pixi.js";
 
 export class Statusbar extends Container {
   heartTexture: Texture;
@@ -12,11 +12,14 @@ export class Statusbar extends Container {
   coins = 100;
   coinsText!: Text;
 
+  background!: Graphics;
+
   constructor(heartTexture: Texture, coinTexture: Texture) {
     super();
     this.heartTexture = heartTexture;
     this.coinTexture = coinTexture;
     this.setup();
+    this.drawBackground();
   }
 
   setup() {
@@ -57,6 +60,15 @@ export class Statusbar extends Container {
       20
     );
     this.addChild(this.coinsText);
+  }
+
+  drawBackground() {
+    this.background = new Graphics();
+    this.background
+      .rect(0, 0, this.width + 40, this.height + 40)
+      .fill({ color: 0x001234 });
+    this.background.alpha = 0.2;
+    this.addChild(this.background);
   }
 
   subtractHearts(damage: number) {
