@@ -43,13 +43,17 @@ export class Building extends AnimatedSprite {
   }
 
   setup() {
-    this.play();
-
-    // const arcview = new Graphics();
-    // arcview
-    //   .arc(this.center.x, this.center.y, this.attackRadius, 0, Math.PI * 2)
-    //   .fill({ color: "rgba(0,0,250,0.2)" });
-    // this.addChild(arcview);
+    const arcview = new Graphics();
+    arcview
+      .arc(
+        this.position.x + this.width / 2,
+        this.position.y,
+        this.attackRadius,
+        0,
+        Math.PI * 2
+      )
+      .fill({ color: "rgba(0,0,250,0.2)" });
+    this.addChild(arcview);
   }
 
   setTarget(target?: Enemy): void {
@@ -60,7 +64,7 @@ export class Building extends AnimatedSprite {
     this.elapsedFrames++;
     const newFrame = this.elapsedFrames % this.framesHold === 0;
 
-    if ((this.target === null && this.currentFrame !== 0) || this.target) {
+    if ((!this.target && this.currentFrame !== 0) || this.target) {
       if (newFrame) {
         if (this.currentFrame >= this.totalFrames - 1) {
           this.currentFrame = 0;
