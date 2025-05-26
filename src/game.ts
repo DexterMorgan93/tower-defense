@@ -14,6 +14,7 @@ import { PlacementTile } from "./placement-tile";
 import { Building } from "./building";
 import type { Projectile } from "./projectile";
 import { Statusbar } from "./status-bar";
+import { Explosion } from "./explosion";
 
 const mouse = {
   x: 0,
@@ -25,6 +26,7 @@ export class Game extends Container {
   assetsLoader!: AssetsLoader;
   background: Sprite;
   enemiesContainer: Container;
+  explosionsContainer: Container;
   placementTilesContainer: Container;
   buildingsContainer: Container;
   activeHoveringTile!: PlacementTile | null;
@@ -78,6 +80,9 @@ export class Game extends Container {
 
     this.buildingsContainer = new Container();
     this.addChild(this.buildingsContainer);
+
+    this.explosionsContainer = new Container();
+    this.addChild(this.explosionsContainer);
   }
 
   handlePointerDown() {
@@ -154,6 +159,15 @@ export class Game extends Container {
       newTile.handleUpdate(mouse);
     }
 
+    // удаление взрывов, когда их полная аним заканчивается
+    for (let i = 0; i < this.explosionsContainer.children.length; i++) {
+      const explosion = this.explosionsContainer.children[i] as Explosion;
+
+      if (explosion.currentFrame >= explosion.totalFrames - 1) {
+        explosion.removeFromParent();
+      }
+    }
+
     for (let i = 0; i < this.buildingsContainer.children.length; i++) {
       const building = this.buildingsContainer.children[i] as Building;
 
@@ -194,8 +208,16 @@ export class Game extends Container {
               distance < Enemy.radius + projectile.radius &&
               !projectile.target.isDead()
             ) {
+              const explosion = new Explosion(this.animations["explosion"]);
+              explosion.position.set(
+                projectilePosition.x,
+                projectilePosition.y
+              );
+              this.explosionsContainer.addChild(explosion);
+
               projectile.target.subtractHealth(20);
               projectile.removeFromParent();
+
               if (projectile.target.isDead()) {
                 projectile.target.removeFromParent();
                 this.statusBar.addCoins(Building.winCoins);

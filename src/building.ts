@@ -33,7 +33,6 @@ export class Building extends AnimatedSprite {
   ) {
     super(texturesTower);
     this.anchor.set(0, 0.5);
-    this.setup();
 
     this.projectilesContainer = new Container();
     this.addChild(this.projectilesContainer);
