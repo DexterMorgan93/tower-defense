@@ -1,11 +1,11 @@
-import { Container, Graphics, Sprite, Texture } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
 import type { Enemy } from "./enemy";
 
 export class Projectile extends Container {
-  color = "orange";
-  view!: Graphics;
-  radius = 10;
+  elapsedFrames = 0;
+  maxFramesAlive = 200;
   moveSpeed = 5;
+  radius = 10;
   target: Enemy | null;
   texture!: Texture;
 
@@ -25,6 +25,14 @@ export class Projectile extends Container {
   }
 
   handleUpdate() {
+    // затемнять не удаленные пули
+    if (this.target?.isDead()) {
+      if (this.alpha > 0) {
+        this.alpha -= 0.05;
+      }
+    }
+    this.elapsedFrames++;
+
     if (this.target) {
       const targetPosition = this.target.getGlobalPosition();
       const projectilePosition = this.getGlobalPosition();
@@ -39,5 +47,10 @@ export class Projectile extends Container {
       this.position.x += velocityX;
       this.position.y += velocityY;
     }
+  }
+
+  isAlive() {
+    // если пуля остается на экране 200 фреймов, то помечаем ее на удаление
+    return this.elapsedFrames <= this.maxFramesAlive;
   }
 }

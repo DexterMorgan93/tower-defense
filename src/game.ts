@@ -154,8 +154,8 @@ export class Game extends Container {
       newTile.handleUpdate(mouse);
     }
 
-    this.buildingsContainer.children.forEach((item) => {
-      const building = item as Building;
+    for (let i = 0; i < this.buildingsContainer.children.length; i++) {
+      const building = this.buildingsContainer.children[i] as Building;
 
       const validEnemies = this.enemiesContainer.children.filter((item) => {
         const enemy = item as Enemy;
@@ -169,36 +169,42 @@ export class Game extends Container {
       building.handleUpdate();
       building.setTarget(validEnemies[0] as Enemy);
 
-      building.projectilesContainer.children.forEach((subItem) => {
-        const projectile = subItem as Projectile;
+      for (let j = 0; j < building.projectilesContainer.children.length; j++) {
+        const projectile = building.projectilesContainer.children[
+          j
+        ] as Projectile;
         projectile.handleUpdate();
 
         if (projectile.target) {
-          const projectilePosition = this.toLocal(
-            projectile.getGlobalPosition()
-          );
-          const targetPosition = this.toLocal(
-            projectile.target.getGlobalPosition()
-          );
-
-          const xDifference = projectilePosition.x - targetPosition.x;
-          const yDifference = projectilePosition.y - targetPosition.y;
-          const distance = Math.hypot(xDifference, yDifference);
-
-          if (
-            distance < Enemy.radius + projectile.radius &&
-            !projectile.target.isDead()
-          ) {
-            projectile.target.subtractHealth(20);
+          if (!projectile.isAlive()) {
             projectile.removeFromParent();
-            if (projectile.target.isDead()) {
-              projectile.target.removeFromParent();
-              this.statusBar.addCoins(Building.winCoins);
+          } else {
+            const projectilePosition = this.toLocal(
+              projectile.getGlobalPosition()
+            );
+            const targetPosition = this.toLocal(
+              projectile.target.getGlobalPosition()
+            );
+
+            const xDifference = projectilePosition.x - targetPosition.x;
+            const yDifference = projectilePosition.y - targetPosition.y;
+            const distance = Math.hypot(xDifference, yDifference);
+
+            if (
+              distance < Enemy.radius + projectile.radius &&
+              !projectile.target.isDead()
+            ) {
+              projectile.target.subtractHealth(20);
+              projectile.removeFromParent();
+              if (projectile.target.isDead()) {
+                projectile.target.removeFromParent();
+                this.statusBar.addCoins(Building.winCoins);
+              }
             }
           }
         }
-      });
-    });
+      }
+    }
 
     // tracking total amount of enemies
     if (this.enemiesContainer.children.length === 0) {

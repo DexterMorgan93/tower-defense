@@ -11,7 +11,7 @@ import type { Enemy } from "./enemy";
 export class Building extends AnimatedSprite {
   color = "blue";
   elapsedFrames = 0;
-  framesHold = 3;
+  framesHold = 3; // через сколько кадров анимировать
   shootFrame = 6;
 
   view!: Graphics;
@@ -62,10 +62,12 @@ export class Building extends AnimatedSprite {
 
   handleUpdate() {
     this.elapsedFrames++;
+    // смена кадра
     const newFrame = this.elapsedFrames % this.framesHold === 0;
 
     if ((!this.target && this.currentFrame !== 0) || this.target) {
       if (newFrame) {
+        // Когда достигается последний кадр, анимация возвращается к началу
         if (this.currentFrame >= this.totalFrames - 1) {
           this.currentFrame = 0;
         } else {
@@ -74,6 +76,7 @@ export class Building extends AnimatedSprite {
       }
     }
 
+    // Если цель существует, текущий кадр совпадает с shootFrame, и newFrame
     if (this.target && this.currentFrame === this.shootFrame && newFrame) {
       this.shoot();
     }
