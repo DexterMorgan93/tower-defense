@@ -15,13 +15,14 @@ import { Building } from "./building";
 import type { Projectile } from "./projectile";
 import { Statusbar } from "./status-bar";
 import { Explosion } from "./explosion";
+import { DefaultScene } from "./scene-manager";
 
 const mouse = {
   x: 0,
   y: 0,
 };
 
-export class Game extends Container {
+export class Game extends DefaultScene {
   app: Application;
   assetsLoader!: AssetsLoader;
   background: Sprite;
@@ -138,10 +139,10 @@ export class Game extends Container {
     }
   }
 
-  handleUpdate(delta: Ticker) {
+  handleUpdate(delta: number) {
     if (this.statusBar.hearts === 0) {
       this.endGame();
-      delta.stop();
+      // delta.stop();
     }
 
     this.enemiesContainer.children.forEach((enemyItem) => {
