@@ -1,52 +1,49 @@
-import { Container, Graphics, Texture, TextureSource } from "pixi.js";
+import {
+  AnimatedSprite,
+  Container,
+  Graphics,
+  Texture,
+  TextureSource,
+} from "pixi.js";
 import { Projectile } from "./projectile";
 import type { Enemy } from "./enemy";
 
-export class Building extends Container {
-  center!: { x: number; y: number };
+export class Building extends AnimatedSprite {
   color = "blue";
-  elapsedFrames = 60;
+  elapsedFrames = 0;
+  framesHold = 3;
+  shootFrame = 6;
+
   view!: Graphics;
   buildingWidth = 64 * 2;
   buildingHeight = 64;
   projectilesContainer!: Container;
   attackRadius = 250;
   target?: Enemy | null;
-  textures!: Record<string | number, Texture<TextureSource<any>>>;
+
+  texturesProjectile!: Record<string | number, Texture<TextureSource<any>>>;
+  texturesTower!: Texture[];
+
   static cost = 50;
   static winCoins = 25;
 
-  constructor(texture: Record<string | number, Texture<TextureSource<any>>>) {
-    super();
-    this.center = {
-      x: this.position.x + this.buildingWidth / 2,
-      y: this.position.y + this.buildingHeight / 2,
-    };
+  constructor(
+    texturesProjectile: Record<string | number, Texture<TextureSource<any>>>,
+    texturesTower: Texture[]
+  ) {
+    super(texturesTower);
+    this.anchor.set(0, 0.5);
     this.setup();
 
     this.projectilesContainer = new Container();
     this.addChild(this.projectilesContainer);
 
-    this.textures = texture;
-  }
-
-  setTarget(target?: Enemy): void {
-    this.target = target;
-  }
-
-  handleUpdate() {
-    if (this.elapsedFrames % 60 === 0 && this.target) {
-      this.shoot();
-    }
-    this.elapsedFrames++;
+    this.texturesProjectile = texturesProjectile;
+    this.texturesTower = texturesTower;
   }
 
   setup() {
-    this.view = new Graphics();
-    this.view
-      .rect(0, 0, this.buildingWidth, this.buildingHeight)
-      .fill({ color: this.color });
-    this.addChild(this.view);
+    this.play();
 
     // const arcview = new Graphics();
     // arcview
@@ -55,12 +52,35 @@ export class Building extends Container {
     // this.addChild(arcview);
   }
 
+  setTarget(target?: Enemy): void {
+    this.target = target;
+  }
+
+  handleUpdate() {
+    this.elapsedFrames++;
+    const newFrame = this.elapsedFrames % this.framesHold === 0;
+
+    if ((this.target === null && this.currentFrame !== 0) || this.target) {
+      if (newFrame) {
+        if (this.currentFrame >= this.totalFrames - 1) {
+          this.currentFrame = 0;
+        } else {
+          this.currentFrame++;
+        }
+      }
+    }
+
+    if (this.target && this.currentFrame === this.shootFrame && newFrame) {
+      this.shoot();
+    }
+  }
+
   shoot() {
     const projectile = new Projectile(
       this.target || null,
-      this.textures["projectile.png"]
+      this.texturesProjectile["projectile.png"]
     );
-    projectile.position.set(this.buildingWidth / 2, this.buildingHeight / 2);
+    projectile.position.set(60, -60);
     this.projectilesContainer.addChild(projectile);
   }
 }

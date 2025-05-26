@@ -84,7 +84,10 @@ export class Game extends Container {
     this.addEventListener("pointerdown", (e) => {
       if (this.activeHoveringTile && !this.activeHoveringTile.occupied) {
         if (this.statusBar.coins >= Building.cost) {
-          const newBuilding = new Building(this.textures);
+          const newBuilding = new Building(
+            this.textures,
+            this.animations["tower"]
+          );
           this.statusBar.subtractCoins(Building.cost);
 
           newBuilding.position.set(

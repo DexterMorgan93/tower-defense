@@ -1,4 +1,4 @@
-import { AnimatedSprite, Container, Graphics, Texture } from "pixi.js";
+import { AnimatedSprite, Texture } from "pixi.js";
 import { waypoints } from "./shared/waypoints";
 import { HealthBar } from "./health-bar";
 
