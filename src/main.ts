@@ -1,17 +1,20 @@
-import { AssetsLoader } from "./shared/assets-loader";
 import { SceneManager } from "./scene-manager";
 import { StartModal } from "./start-modal";
 
-async function initAssets() {
-  const assetsLoader = new AssetsLoader();
-  await assetsLoader.initializeLoader();
-}
-
 async function run(): Promise<void> {
   await SceneManager.initialize();
-  await initAssets();
 
-  await SceneManager.changeScene(new StartModal());
+  const startModal = new StartModal();
+  await startModal.initializeLoader();
+
+  const {
+    backgroundTexture,
+    spritesheet: { textures, animations },
+  } = startModal.getAssets();
+
+  console.log(textures, animations, backgroundTexture);
+
+  await SceneManager.changeScene(startModal);
 }
 
 run();

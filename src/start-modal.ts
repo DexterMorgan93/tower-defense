@@ -1,10 +1,24 @@
-import { Graphics, Text } from "pixi.js";
+import { Assets, Graphics, Spritesheet, Text, Texture } from "pixi.js";
 import { DefaultScene, SceneManager } from "./scene-manager";
 import { Button } from "@pixi/ui";
 import { Game } from "./game";
 
+export const manifest = {
+  bundles: [
+    {
+      name: "bundle-1",
+      assets: {
+        spritesheet: "spritesheets/spritesheet.json",
+        background: "images/map.png",
+      },
+    },
+  ],
+};
+
 export class StartModal extends DefaultScene {
   modalBox!: Graphics;
+  loaderBarFill!: Graphics;
+  loaderBarBorder!: Graphics;
   button!: Button;
   boxOptions = {
     top: 500,
@@ -31,10 +45,20 @@ export class StartModal extends DefaultScene {
     textStroke: 2,
   };
 
+  barOptions = {
+    width: 350,
+    height: 40,
+    fillColor: 0x183dd0,
+    borderRadius: 5,
+    borderThick: 5,
+    borderColor: 0x000000,
+  };
+
   constructor() {
     super();
 
     this.setup();
+
     this.button.onPress.connect(() => {
       SceneManager.changeScene(new Game(SceneManager.app));
     });
@@ -53,8 +77,31 @@ export class StartModal extends DefaultScene {
         boxOptions.borderRadius
       )
       .fill({ color: boxOptions.fill });
-    this.modalBox.pivot.set(0.5, 0.5);
     this.addChild(this.modalBox);
+
+    this.loaderBarBorder = new Graphics();
+    this.loaderBarBorder
+      .roundRect(
+        300,
+        200,
+        this.barOptions.width,
+        this.barOptions.height,
+        this.barOptions.borderRadius
+      )
+      .fill({ color: this.barOptions.borderColor });
+    this.addChild(this.loaderBarBorder);
+
+    this.loaderBarFill = new Graphics();
+    this.loaderBarFill
+      .roundRect(
+        480,
+        320,
+        this.barOptions.width - this.barOptions.borderThick * 2,
+        this.barOptions.height - this.barOptions.borderThick * 2,
+        this.barOptions.borderRadius
+      )
+      .fill({ color: this.barOptions.fillColor });
+    this.addChild(this.loaderBarFill);
 
     const buttonView = new Graphics();
     buttonView
@@ -79,5 +126,31 @@ export class StartModal extends DefaultScene {
     });
     buttonText.position.set(buttonOptions.top + 40, buttonOptions.left + 10);
     this.addChild(buttonText);
+  }
+
+  async initializeLoader(): Promise<void> {
+    await Assets.init({ manifest });
+
+    await Assets.loadBundle(
+      manifest.bundles.map((bundle) => bundle.name),
+      this.downloadProgress
+    );
+  }
+
+  downloadProgress = (progressRatio: number): void => {
+    console.log(`Progress: ${progressRatio * 100}%`);
+
+    this.loaderBarFill.width =
+      (this.barOptions.width - this.barOptions.borderThick * 2) * progressRatio;
+  };
+
+  getAssets(): {
+    spritesheet: Spritesheet;
+    backgroundTexture: Texture;
+  } {
+    return {
+      spritesheet: Assets.get("spritesheet"),
+      backgroundTexture: Assets.get("background"),
+    };
   }
 }
