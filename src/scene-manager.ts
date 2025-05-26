@@ -34,8 +34,8 @@ export class SceneManager {
 
     if (SceneManager.currentScene !== newScene) {
       SceneManager.currentScene = newScene;
+      SceneManager.app.stage.addChild(SceneManager.currentScene);
     }
-    SceneManager.app.stage.addChild(SceneManager.currentScene);
   }
 
   static updateHandler() {

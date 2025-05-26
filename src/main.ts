@@ -1,6 +1,6 @@
 import { AssetsLoader } from "./shared/assets-loader";
-import { Game } from "./game";
 import { SceneManager } from "./scene-manager";
+import { StartModal } from "./start-modal";
 
 async function initAssets() {
   const assetsLoader = new AssetsLoader();
@@ -11,7 +11,7 @@ async function run(): Promise<void> {
   await SceneManager.initialize();
   await initAssets();
 
-  await SceneManager.changeScene(new Game(SceneManager.app));
+  await SceneManager.changeScene(new StartModal());
 }
 
 run();
