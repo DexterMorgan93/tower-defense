@@ -139,10 +139,10 @@ export class Game extends DefaultScene {
     }
   }
 
-  handleUpdate(delta: number) {
+  handleUpdate(deltaMS: Ticker) {
     if (this.statusBar.hearts === 0) {
       this.endGame();
-      // delta.stop();
+      deltaMS.stop();
     }
 
     this.enemiesContainer.children.forEach((enemyItem) => {

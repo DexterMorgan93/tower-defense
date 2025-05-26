@@ -1,7 +1,8 @@
-import { Application, Container } from "pixi.js";
+import { initDevtools } from "@pixi/devtools";
+import { Application, Container, Ticker } from "pixi.js";
 
 export class DefaultScene extends Container {
-  handleUpdate(deltaMS: number): void {}
+  handleUpdate(deltaMS: Ticker): void {}
 }
 
 export class SceneManager {
@@ -21,6 +22,10 @@ export class SceneManager {
 
     SceneManager.app = app;
     SceneManager.app.ticker.add(SceneManager.updateHandler);
+
+    initDevtools({
+      app,
+    });
   }
 
   static async changeScene(newScene: DefaultScene): Promise<void> {
@@ -34,6 +39,6 @@ export class SceneManager {
   }
 
   static updateHandler() {
-    SceneManager.currentScene.handleUpdate(SceneManager.app.ticker.deltaMS);
+    SceneManager.currentScene.handleUpdate(SceneManager.app.ticker);
   }
 }
