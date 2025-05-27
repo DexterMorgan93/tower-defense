@@ -11,7 +11,7 @@ export class Enemy extends AnimatedSprite {
     vx: 0,
     vy: 0,
   };
-  moveSpeed = 50;
+  moveSpeed = 30;
 
   health = 100;
   healthBar!: HealthBar;

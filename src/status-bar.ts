@@ -85,4 +85,11 @@ export class Statusbar extends Container {
     this.coins += value;
     this.coinsText.text = this.coins;
   }
+
+  setCoins() {
+    this.coins = 100;
+  }
+  setHearts() {
+    this.hearts = 10;
+  }
 }

@@ -10,7 +10,7 @@ async function run(): Promise<void> {
   await SceneManager.changeScene(loaderModal);
   await loaderModal.initializeLoader();
 
-  await delay(2000);
+  await delay(1000);
   await SceneManager.changeScene(new StartModal());
 }
 
