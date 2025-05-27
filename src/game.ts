@@ -15,7 +15,7 @@ import type { Projectile } from "./projectile";
 import { Statusbar } from "./status-bar";
 import { Explosion } from "./explosion";
 import { DefaultScene } from "./scene-manager";
-import { StartModal } from "./start-modal";
+import { LoaderModal } from "./loader-modal";
 
 const mouse = {
   x: 0,
@@ -43,14 +43,14 @@ export class Game extends DefaultScene {
     this.handleHover();
     this.handlePointerDown();
 
-    const startModal = new StartModal();
+    const loaderModal = new LoaderModal();
 
     this.app = app;
 
     const {
       backgroundTexture,
       spritesheet: { textures, animations },
-    } = startModal.getAssets();
+    } = loaderModal.getAssets();
     this.textures = textures;
     this.animations = animations;
 
