@@ -1,11 +1,11 @@
 import { Graphics, Text } from "pixi.js";
 import { DefaultScene, SceneManager } from "./scene-manager";
-import { Button } from "@pixi/ui";
+import { FancyButton } from "@pixi/ui";
 import { Game } from "./game";
 
 export class StartModal extends DefaultScene {
   modalBox!: Graphics;
-  button!: Button;
+  button!: FancyButton;
   boxOptions = {
     top: 500,
     left: 300,
@@ -22,12 +22,14 @@ export class StartModal extends DefaultScene {
     height: 50,
     fill: 0x0ea5e9,
     borderRadius: 10,
+    animationDuration: 100,
   };
 
   buttonTextOptions = {
+    text: "Launch",
     top: 95,
-    textColor: 0xffffff,
-    textSize: 20,
+    textColor: "red",
+    textSize: 40,
     textStroke: 2,
   };
 
@@ -42,42 +44,56 @@ export class StartModal extends DefaultScene {
   }
 
   setup(): void {
-    const { boxOptions, buttonOptions } = this;
+    const { boxOptions, buttonOptions, buttonTextOptions } = this;
 
     this.modalBox = new Graphics();
     this.modalBox
       .roundRect(
-        boxOptions.top,
-        boxOptions.left,
+        0,
+        0,
         boxOptions.width,
         boxOptions.height,
         boxOptions.borderRadius
       )
       .fill({ color: boxOptions.fill });
+    this.modalBox.pivot.set(boxOptions.width / 2, boxOptions.height / 2);
+    this.modalBox.position.set(
+      SceneManager.app.canvas.width / 2,
+      SceneManager.app.canvas.height / 2
+    );
     this.addChild(this.modalBox);
 
-    const buttonView = new Graphics();
-    buttonView
-      .roundRect(
-        buttonOptions.top,
-        buttonOptions.left,
-        buttonOptions.width,
-        buttonOptions.height,
-        buttonOptions.borderRadius
-      )
-      .fill({ color: 0x0ea5e9 });
-    this.button = new Button(buttonView);
-    this.addChild(this.button.view);
-
-    const buttonText = new Text({
-      text: "Launch Game",
-      style: {
-        fontSize: this.buttonTextOptions.textSize,
-        fill: this.buttonTextOptions.textColor,
-        stroke: this.buttonTextOptions.textStroke,
+    this.button = new FancyButton({
+      text: new Text({
+        text: buttonTextOptions.text,
+        style: {
+          fill: buttonTextOptions.textColor,
+          fontSize: buttonTextOptions.textSize,
+          stroke: buttonTextOptions.textStroke,
+        },
+      }),
+      animations: {
+        hover: {
+          props: {
+            scale: { x: 1.03, y: 1.03 },
+            y: 0,
+          },
+          duration: buttonOptions.animationDuration,
+        },
+        pressed: {
+          props: {
+            scale: { x: 0.9, y: 0.9 },
+            y: 10,
+          },
+          duration: buttonOptions.animationDuration,
+        },
       },
     });
-    buttonText.position.set(buttonOptions.top + 40, buttonOptions.left + 10);
-    this.addChild(buttonText);
+    this.button.position.set(
+      SceneManager.app.canvas.width / 2,
+      SceneManager.app.canvas.height / 2
+    );
+    this.button.anchor.set(0.5, 0.5);
+    this.addChild(this.button);
   }
 }
