@@ -66,4 +66,9 @@ export class Enemy extends AnimatedSprite {
   isDead(): boolean {
     return this.health <= 0;
   }
+
+  stopAll() {
+    this.velocity.vx = 0;
+    this.velocity.vy = 0;
+  }
 }

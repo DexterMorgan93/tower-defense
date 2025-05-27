@@ -1,7 +1,13 @@
-import { Assets, Graphics, Spritesheet, Texture } from "pixi.js";
+import {
+  Assets,
+  Graphics,
+  Spritesheet,
+  Texture,
+  type AssetsManifest,
+} from "pixi.js";
 import { DefaultScene } from "./scene-manager";
 
-export const manifest = {
+export const manifest: AssetsManifest = {
   bundles: [
     {
       name: "bundle-1",

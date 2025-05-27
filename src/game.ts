@@ -14,7 +14,7 @@ import { Building } from "./building";
 import type { Projectile } from "./projectile";
 import { Statusbar } from "./status-bar";
 import { Explosion } from "./explosion";
-import { DefaultScene } from "./scene-manager";
+import { DefaultScene, SceneManager } from "./scene-manager";
 import { LoaderModal } from "./loader-modal";
 import { EndGameModal } from "./end-game-modal";
 
@@ -86,10 +86,6 @@ export class Game extends DefaultScene {
 
     this.explosionsContainer = new Container();
     this.addChild(this.explosionsContainer);
-
-    this.endGameModal = new EndGameModal(this);
-    this.endGameModal.visible = false;
-    this.addChild(this.endGameModal);
   }
 
   handlePointerDown() {
@@ -150,107 +146,95 @@ export class Game extends DefaultScene {
   }
 
   handleUpdate(deltaMS: Ticker) {
-    if (!this.gameEnded) {
-      for (let p = 0; p < this.enemiesContainer.children.length; p++) {
-        const enemy = this.enemiesContainer.children[p] as Enemy;
-        // const enemyPosition = this.toLocal(enemy.getGlobalPosition());
-        enemy.handleUpdate();
+    for (let p = 0; p < this.enemiesContainer.children.length; p++) {
+      const enemy = this.enemiesContainer.children[p] as Enemy;
+      // const enemyPosition = this.toLocal(enemy.getGlobalPosition());
+      enemy.handleUpdate();
 
-        if (enemy.position.x > 1280) {
-          enemy.removeFromParent();
-          this.statusBar.subtractHearts(1);
-        }
+      if (enemy.position.x > 1280) {
+        enemy.removeFromParent();
+        this.statusBar.subtractHearts(1);
       }
+    }
 
-      for (
-        let i = 0;
-        i < this.placementTilesContainer.children.length - 1;
-        i++
-      ) {
-        const newTile = this.placementTilesContainer.children[
-          i
-        ] as PlacementTile;
-        newTile.handleUpdate(mouse);
+    for (let i = 0; i < this.placementTilesContainer.children.length - 1; i++) {
+      const newTile = this.placementTilesContainer.children[i] as PlacementTile;
+      newTile.handleUpdate(mouse);
+    }
+
+    // удаление взрывов, когда их полная аним заканчивается
+    for (let i = 0; i < this.explosionsContainer.children.length; i++) {
+      const explosion = this.explosionsContainer.children[i] as Explosion;
+
+      if (explosion.currentFrame >= explosion.totalFrames - 1) {
+        explosion.removeFromParent();
       }
+    }
 
-      // удаление взрывов, когда их полная аним заканчивается
-      for (let i = 0; i < this.explosionsContainer.children.length; i++) {
-        const explosion = this.explosionsContainer.children[i] as Explosion;
+    for (let i = 0; i < this.buildingsContainer.children.length; i++) {
+      const building = this.buildingsContainer.children[i] as Building;
 
-        if (explosion.currentFrame >= explosion.totalFrames - 1) {
-          explosion.removeFromParent();
-        }
-      }
+      const validEnemies = this.enemiesContainer.children.filter((item) => {
+        const enemy = item as Enemy;
+        const enemyPosition = this.toLocal(enemy.getGlobalPosition());
 
-      for (let i = 0; i < this.buildingsContainer.children.length; i++) {
-        const building = this.buildingsContainer.children[i] as Building;
+        const xDifference = enemyPosition.x - building.position.x;
+        const yDifference = enemyPosition.y - building.position.y;
+        const distance = Math.hypot(xDifference, yDifference);
+        return distance < Enemy.radius + building.attackRadius;
+      });
+      building.handleUpdate();
+      building.setTarget(validEnemies[0] as Enemy);
 
-        const validEnemies = this.enemiesContainer.children.filter((item) => {
-          const enemy = item as Enemy;
-          const enemyPosition = this.toLocal(enemy.getGlobalPosition());
+      for (let j = 0; j < building.projectilesContainer.children.length; j++) {
+        const projectile = building.projectilesContainer.children[
+          j
+        ] as Projectile;
+        projectile.handleUpdate();
 
-          const xDifference = enemyPosition.x - building.position.x;
-          const yDifference = enemyPosition.y - building.position.y;
-          const distance = Math.hypot(xDifference, yDifference);
-          return distance < Enemy.radius + building.attackRadius;
-        });
-        building.handleUpdate();
-        building.setTarget(validEnemies[0] as Enemy);
+        if (projectile.target) {
+          if (!projectile.isAlive()) {
+            projectile.removeFromParent();
+          } else {
+            const projectilePosition = this.toLocal(
+              projectile.getGlobalPosition()
+            );
+            const targetPosition = this.toLocal(
+              projectile.target.getGlobalPosition()
+            );
 
-        for (
-          let j = 0;
-          j < building.projectilesContainer.children.length;
-          j++
-        ) {
-          const projectile = building.projectilesContainer.children[
-            j
-          ] as Projectile;
-          projectile.handleUpdate();
+            const xDifference = projectilePosition.x - targetPosition.x;
+            const yDifference = projectilePosition.y - targetPosition.y;
+            const distance = Math.hypot(xDifference, yDifference);
 
-          if (projectile.target) {
-            if (!projectile.isAlive()) {
+            if (
+              distance < Enemy.radius + projectile.radius &&
+              !projectile.target.isDead()
+            ) {
+              const explosion = new Explosion(this.animations["explosion"]);
+              explosion.position.set(
+                projectilePosition.x,
+                projectilePosition.y
+              );
+              this.explosionsContainer.addChild(explosion);
+
+              projectile.target.subtractHealth(20);
               projectile.removeFromParent();
-            } else {
-              const projectilePosition = this.toLocal(
-                projectile.getGlobalPosition()
-              );
-              const targetPosition = this.toLocal(
-                projectile.target.getGlobalPosition()
-              );
 
-              const xDifference = projectilePosition.x - targetPosition.x;
-              const yDifference = projectilePosition.y - targetPosition.y;
-              const distance = Math.hypot(xDifference, yDifference);
-
-              if (
-                distance < Enemy.radius + projectile.radius &&
-                !projectile.target.isDead()
-              ) {
-                const explosion = new Explosion(this.animations["explosion"]);
-                explosion.position.set(
-                  projectilePosition.x,
-                  projectilePosition.y
-                );
-                this.explosionsContainer.addChild(explosion);
-
-                projectile.target.subtractHealth(20);
-                projectile.removeFromParent();
-
-                if (projectile.target.isDead()) {
-                  projectile.target.removeFromParent();
-                  this.statusBar.addCoins(Building.winCoins);
-                }
+              if (projectile.target.isDead()) {
+                projectile.target.removeFromParent();
+                this.statusBar.addCoins(Building.winCoins);
               }
             }
           }
         }
       }
+    }
 
-      // tracking total amount of enemies
-      if (this.enemiesContainer.children.length === 0) {
-        this.spawnEnemiesCount += 1;
-        this.spawnEnemies();
-      }
+    // tracking total amount of enemies
+    if (this.enemiesContainer.children.length === 0) {
+      this.spawnEnemiesCount += 1;
+      this.spawnEnemies();
     }
 
     if (this.statusBar.hearts === 0) {
@@ -262,29 +246,34 @@ export class Game extends DefaultScene {
     this.gameEnded = false;
   }
 
+  cleanDesk(): void {
+    while (this.buildingsContainer.children[0] != null) {
+      this.buildingsContainer.children[0].removeFromParent();
+    }
+    while (this.enemiesContainer.children[0] != null) {
+      this.enemiesContainer.children[0].removeFromParent();
+    }
+    while (this.explosionsContainer.children[0] != null) {
+      this.explosionsContainer.children[0].removeFromParent();
+    }
+  }
+
   restartGame() {
-    this.endGameModal.visible = false;
-
-    for (let p = 0; p < this.enemiesContainer.children.length - 1; p++) {
-      const enemy = this.enemiesContainer.children[p] as Enemy;
-      enemy.removeFromParent();
-    }
-
-    for (let p = 0; p < this.buildingsContainer.children.length; p++) {
-      const building = this.buildingsContainer.children[p] as Building;
-      building.removeFromParent();
-    }
+    this.endGameModal.removeFromParent();
 
     this.spawnEnemiesCount = 2;
 
-    this.statusBar.setCoins();
-    this.statusBar.setHearts();
-
     this.gameEnded = false;
+    this.cleanDesk();
+    SceneManager.app.ticker.start();
+    this.statusBar.restart();
   }
 
   endGame() {
     this.gameEnded = true;
-    this.endGameModal.visible = true;
+    this.endGameModal = new EndGameModal(this);
+    this.addChild(this.endGameModal);
+
+    SceneManager.app.ticker.stop();
   }
 }
