@@ -6,6 +6,7 @@ import {
   type AssetsManifest,
 } from "pixi.js";
 import { DefaultScene } from "./scene-manager";
+import { List, ProgressBar } from "@pixi/ui";
 
 export const manifest: AssetsManifest = {
   bundles: [
@@ -22,36 +23,31 @@ export const manifest: AssetsManifest = {
 export class LoaderModal extends DefaultScene {
   loaderBarFill!: Graphics;
   loaderBarBorder!: Graphics;
+  progressBar!: ProgressBar;
+  isFilling = true;
 
   barOptions = {
-    width: 350,
-    height: 40,
-    fillColor: 0x183dd0,
-    borderRadius: 5,
-    borderThick: 5,
-    borderColor: "red",
+    value: 0,
+    width: 450,
+    height: 35,
+    fillColor: "#00b1dd",
+    borderRadius: 25,
+    borderColor: "#FFFFFF",
+    backgroundColor: "#fe6048",
+    border: 3,
   };
 
   constructor() {
     super();
 
-    this.setup();
-
     this.draw();
   }
 
-  setup() {
-    const loaderBarBorder = new Graphics();
-    this.addChild(loaderBarBorder);
-    this.loaderBarBorder = loaderBarBorder;
-
-    const loaderBarFill = new Graphics();
-    this.addChild(loaderBarFill);
-    this.loaderBarFill = loaderBarFill;
-  }
-
   draw() {
-    this.loaderBarBorder
+    const list = new List({ type: "vertical", elementsMargin: 10 });
+
+    const loaderBarBorder = new Graphics();
+    loaderBarBorder
       .roundRect(
         0,
         0,
@@ -59,17 +55,43 @@ export class LoaderModal extends DefaultScene {
         this.barOptions.height,
         this.barOptions.borderRadius
       )
-      .fill({ color: this.barOptions.borderColor });
-
-    this.loaderBarFill
+      .fill({ color: this.barOptions.borderColor })
       .roundRect(
-        this.barOptions.borderThick,
-        this.barOptions.borderThick,
-        0,
-        0,
+        this.barOptions.border,
+        this.barOptions.border,
+        this.barOptions.width - this.barOptions.border * 2,
+        this.barOptions.height - this.barOptions.border * 2,
         this.barOptions.borderRadius
       )
-      .fill({ color: this.barOptions.fillColor });
+      .fill(this.barOptions.backgroundColor);
+
+    const loaderBarFill = new Graphics();
+    loaderBarFill
+      .roundRect(
+        0,
+        0,
+        this.barOptions.width,
+        this.barOptions.height,
+        this.barOptions.borderRadius
+      )
+      .fill({ color: this.barOptions.borderColor })
+      .roundRect(
+        this.barOptions.border,
+        this.barOptions.border,
+        this.barOptions.width - this.barOptions.border * 2,
+        this.barOptions.height - this.barOptions.border * 2,
+        this.barOptions.borderRadius
+      )
+      .fill(this.barOptions.fillColor);
+
+    this.progressBar = new ProgressBar({
+      bg: loaderBarBorder,
+      fill: loaderBarFill,
+      progress: this.barOptions.value,
+    });
+
+    list.addChild(this.progressBar);
+    this.addChild(list);
   }
 
   async initializeLoader(): Promise<void> {
@@ -82,16 +104,13 @@ export class LoaderModal extends DefaultScene {
   }
 
   downloadProgress = (progressRatio: number): void => {
-    this.loaderBarFill
-      .roundRect(
-        this.barOptions.borderThick,
-        this.barOptions.borderThick,
-        (this.barOptions.width - this.barOptions.borderThick * 2) *
-          progressRatio,
-        this.barOptions.height - this.barOptions.borderThick * 2,
-        this.barOptions.borderRadius
-      )
-      .fill({ color: this.barOptions.fillColor });
+    this.isFilling ? progressRatio++ : progressRatio--;
+    if (progressRatio > 15) {
+      this.isFilling = false;
+    } else if (progressRatio < -50) {
+      this.isFilling = true;
+    }
+    this.progressBar.progress = progressRatio * 100;
   };
 
   getAssets(): {
