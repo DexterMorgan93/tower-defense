@@ -16,6 +16,7 @@ import { Statusbar } from "./status-bar";
 import { Explosion } from "./explosion";
 import { DefaultScene } from "./scene-manager";
 import { LoaderModal } from "./loader-modal";
+import { EndGameModal } from "./end-game-modal";
 
 const mouse = {
   x: 0,
@@ -246,5 +247,8 @@ export class Game extends DefaultScene {
 
   endGame() {
     this.gameEnded = true;
+
+    const endGameText = new EndGameModal();
+    this.addChild(endGameText);
   }
 }
